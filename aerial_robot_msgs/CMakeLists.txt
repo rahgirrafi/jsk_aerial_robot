@@ -1,36 +1,53 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.8)
 project(aerial_robot_msgs)
 
-## Find catkin and any catkin packages
-find_package(catkin REQUIRED COMPONENTS
-  std_msgs
-  geometry_msgs
-  message_generation
-  )
+# Default to C99
+if(NOT CMAKE_C_STANDARD)
+  set(CMAKE_C_STANDARD 99)
+endif()
 
-## Declare ROS messages and services
-add_message_files(FILES
-  DynamicReconfigureLevels.msg
-  FourAxisGain.msg
-  AerialRobotStatus.msg
-  FlightNav.msg
-  PoseControlPid.msg
-  Pid.msg
-  State.msg
-  States.msg
-  Acc.msg
-  WrenchAllocationMatrix.msg
-  ApplyWrench.msg
-  ForceList.msg
+# Default to C++17
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 17)
+endif()
+
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
+
+find_package(ament_cmake REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
+
+# Message files
+set(msg_files
+  "msg/DynamicReconfigureLevels.msg"
+  "msg/FourAxisGain.msg"
+  "msg/AerialRobotStatus.msg"
+  "msg/FlightNav.msg"
+  "msg/PoseControlPid.msg"
+  "msg/Pid.msg"
+  "msg/State.msg"
+  "msg/States.msg"
+  "msg/Acc.msg"
+  "msg/WrenchAllocationMatrix.msg"
+  "msg/ApplyWrench.msg"
+  "msg/ForceList.msg"
 )
 
-## Generate added messages and services
-generate_messages(DEPENDENCIES std_msgs geometry_msgs)
-
-## Declare a catkin package
-catkin_package(
-  CATKIN_DEPENDS std_msgs geometry_msgs message_runtime
+# Service files
+set(srv_files
+  "srv/AddExtraModule.srv"
 )
+
+rosidl_generate_interfaces(${PROJECT_NAME}
+  ${msg_files}
+  ${srv_files}
+  DEPENDENCIES std_msgs geometry_msgs
+)
+
+ament_package()
 
 
 

@@ -7,7 +7,7 @@
 #include <angles/angles.h>
 #include <geometry_msgs/Vector3Stamped.h>
 #include <geometry_msgs/PoseStamped.h>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/Joy.h>
 #include <spinal/FlightConfigCmd.h>
 #include <std_msgs/Empty.h>

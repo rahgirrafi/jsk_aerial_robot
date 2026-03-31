@@ -49,7 +49,7 @@
 #if USE_GPU
 #include "opencv2/gpu/gpu.hpp"
 #endif
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/CameraInfo.h>
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/Image.h>

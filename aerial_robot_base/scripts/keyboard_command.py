@@ -1,12 +1,10 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-from __future__ import print_function # for print function in python2
 import sys, select, termios, tty
 
-import rospy
+from aerial_robot_base import ros_compat as rospy
 from std_msgs.msg import Empty
 from aerial_robot_msgs.msg import FlightNav
-import rosgraph
 
 
 
@@ -51,14 +49,11 @@ if __name__=="__main__":
         print(msg)
 
         if not robot_ns:
-                master = rosgraph.Master('/rostopic')
-                try:
-                        _, subs, _ = master.getSystemState()
-
-                except socket.error:
-                        raise ROSTopicIOException("Unable to communicate with master!")
-
-                teleop_topics = [topic[0] for topic in subs if 'teleop_command/start' in topic[0]]
+                node = rospy.get_node()
+                teleop_topics = [
+                        topic for topic, _ in node.get_topic_names_and_types()
+                        if 'teleop_command/start' in topic
+                ]
                 if len(teleop_topics) == 1:
                         robot_ns = teleop_topics[0].split('/teleop')[0]
 
@@ -102,7 +97,7 @@ if __name__=="__main__":
                                 takeoff_pub.publish(Empty())
                                 msg = "send takeoff command"
                         if key == 'x':
-                                motion_start_pub.publish()
+                                motion_start_pub.publish(Empty())
                                 msg = "send task-start command"
                         if key == 'w':
                                 nav_msg.pos_xy_nav_mode = FlightNav.VEL_MODE

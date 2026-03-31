@@ -9,29 +9,24 @@
   <url type="website">http://wiki.ros.org/beginner_tutorials</url>
   <author email="chou@jsk.imi.i.u-tokyo.ac.jp">Bakui Chou</author>
 
-  <buildtool_depend>catkin</buildtool_depend>
+  <buildtool_depend>ament_cmake</buildtool_depend>
 
   <build_depend>aerial_robot_control</build_depend>
   <build_depend>aerial_robot_estimation</build_depend>
   <build_depend>aerial_robot_model</build_depend>
-  <build_depend>roscpp</build_depend>
-  <build_depend>rospy</build_depend>
+  <build_depend>rclcpp</build_depend>
+  <build_depend>rclpy</build_depend>
 
   <exec_depend>aerial_robot_control</exec_depend>
   <exec_depend>aerial_robot_estimation</exec_depend>
   <exec_depend>aerial_robot_model</exec_depend>
-  <exec_depend condition="$ROS_PYTHON_VERSION == 2">ipython</exec_depend>
-  <exec_depend condition="$ROS_PYTHON_VERSION == 3">ipython3</exec_depend>
   <exec_depend>joy</exec_depend>
-  <exec_depend>jsk_rviz_plugins</exec_depend>
+  <exec_depend>rviz2</exec_depend>
   <exec_depend>mocap_optitrack</exec_depend>
-  <exec_depend>smach_ros</exec_depend>
-  <exec_depend>smach_viewer</exec_depend>
-  <exec_depend>roscpp</exec_depend>
-  <exec_depend>ros_numpy</exec_depend>
-  <exec_depend>rospy</exec_depend>
-  <exec_depend>rostest</exec_depend>
+  <exec_depend>smclib</exec_depend>
+  <exec_depend>rclcpp</exec_depend>
+  <exec_depend>rclpy</exec_depend>
   <exec_depend>ublox_gps</exec_depend>
-  <exec_depend>ntrip_ros</exec_depend>
+  <exec_depend>ntrip_client</exec_depend>
 
 </package>

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # Software License Agreement (BSD License)
@@ -30,7 +30,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import rospy
+from aerial_robot_base import ros_compat as rospy
 
 from aerial_robot_base.robot_interface import RobotInterface
 from aerial_robot_base.state_machine import *
@@ -89,6 +89,7 @@ if __name__ == '__main__':
     rospy.init_node('simple_demo')
 
     demo = SimpleDemo()
+    rospy.shutdown()
 
 
 

@@ -1,8 +1,9 @@
-from distutils.core import setup
-from catkin_pkg.python_setup import generate_distutils_setup
+from setuptools import find_packages, setup
 
-setup_args = generate_distutils_setup(
-    packages=['aerial_robot_base'],
-    package_dir={'': 'src'})
 
-setup(**setup_args)
+setup(
+    name='aerial_robot_base',
+    version='1.3.6',
+    packages=find_packages(where='src'),
+    package_dir={'': 'src'},
+)

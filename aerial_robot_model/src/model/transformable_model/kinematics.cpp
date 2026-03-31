@@ -17,9 +17,7 @@ void RobotModel::calcBasicKinematicsJacobian()
   const std::vector<Eigen::Vector3d> p = getRotorsOriginFromCog<Eigen::Vector3d>();
   const std::vector<Eigen::Vector3d> u = getRotorsNormalFromCog<Eigen::Vector3d>();
   const auto& joint_positions = getJointPositions();
-  const auto& sigma = getRotorDirection();
   const int rotor_num = getRotorNum();
-  const double m_f_rate = getMFRate();
 
   //calc jacobian of u(thrust direction, force vector), p(thrust position)
   for (int i = 0; i < rotor_num; ++i) {

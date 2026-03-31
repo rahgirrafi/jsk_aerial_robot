@@ -49,7 +49,7 @@
 #include <spinal/DesireCoord.h>
 #include <std_msgs/Float64.h>
 #include <tf/LinearMath/Transform.h>
-#include <urdf/model.h>
+#include <urdf_model/model.h>
 
 namespace flight_controllers
 {

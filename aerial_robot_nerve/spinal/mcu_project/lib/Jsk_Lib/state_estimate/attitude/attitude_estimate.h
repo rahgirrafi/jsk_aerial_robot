@@ -19,7 +19,7 @@
 /* ros */
 #include <ros.h>
 #else
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #endif
 
 #include <spinal/Imu.h>

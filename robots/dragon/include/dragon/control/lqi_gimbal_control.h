@@ -40,7 +40,7 @@
 #include <hydrus/hydrus_lqi_controller.h>
 #include <dragon/model/hydrus_like_robot_model.h>
 #include <dragon/dragon_navigation.h>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <std_msgs/String.h>
 #include <spinal/RollPitchYawTerm.h>
 

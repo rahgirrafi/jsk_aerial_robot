@@ -16,7 +16,7 @@
 #include "config.h"
 #include <ros.h>
 #else
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #endif
 
 #ifndef SIMULATION

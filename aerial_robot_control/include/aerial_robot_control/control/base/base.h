@@ -39,7 +39,7 @@
 #include <aerial_robot_control/flight_navigation.h>
 #include <aerial_robot_estimation/state_estimation.h>
 #include <aerial_robot_model/model/aerial_robot_model.h>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <spinal/PwmInfo.h>
 #include <spinal/UavInfo.h>
 

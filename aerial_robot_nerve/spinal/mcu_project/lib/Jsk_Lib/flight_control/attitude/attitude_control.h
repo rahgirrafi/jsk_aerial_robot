@@ -17,7 +17,7 @@
 #include <ros.h>
 #include <sensor_msgs/JointState.h>
 #else
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #endif
 
 #include <math/AP_Math.h>

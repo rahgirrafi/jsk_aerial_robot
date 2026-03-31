@@ -11,7 +11,7 @@ Eigen::MatrixXd RobotModel::getJacobian(const KDL::JntArray& joint_positions, st
 
   KDL::TreeJntToJacSolver solver(tree);
   KDL::Jacobian jac(tree.getNrOfJoints());
-  int status = solver.JntToJac(joint_positions, jac, segment_name);
+  solver.JntToJac(joint_positions, jac, segment_name);
   jac.changeRefPoint(seg_frames.at(segment_name).M * offset);
 
   // joint part

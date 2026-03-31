@@ -40,7 +40,7 @@
 #include <hardware_interface/internal/hardware_resource_manager.h>
 #include <joint_limits_interface/joint_limits_interface_exception.h>
 #include <limits>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <ros/common.h>
 #include <state_estimate/state_estimate.h>
 #include <urdf_model/joint.h>

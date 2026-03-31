@@ -1,10 +1,9 @@
 #pragma once
 
-#include <tf2_kdl/tf2_kdl.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
-#include <tf2_eigen/tf2_eigen.h>
-#include <eigen_conversions/eigen_kdl.h>
-#include <sensor_msgs/JointState.h>
+#include <tf2_kdl/tf2_kdl.hpp>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
+#include <tf2_eigen/tf2_eigen.hpp>
+#include <sensor_msgs/msg/joint_state.hpp>
 #include <map>
 #include <vector>
 #include <kdl/rotationalinertia.hpp>
@@ -30,24 +29,24 @@ namespace aerial_robot_model {
     else return false;
   }
 
-  inline geometry_msgs::TransformStamped kdlToMsg(const KDL::Frame& in)
+  inline geometry_msgs::msg::TransformStamped kdlToMsg(const KDL::Frame& in)
   {
     return tf2::kdlToTransform(in);
   }
 
-  inline geometry_msgs::PointStamped kdlToMsg(const KDL::Vector& in)
+  inline geometry_msgs::msg::PointStamped kdlToMsg(const KDL::Vector& in)
   {
     tf2::Stamped<KDL::Vector> tmp;
     tmp.setData(in);
-    geometry_msgs::PointStamped out;
+    geometry_msgs::msg::PointStamped out;
     tf2::convert(tmp, out);
     return out;
   }
 
-  inline std::vector<geometry_msgs::PointStamped> kdlToMsg(const std::vector<KDL::Vector>& in)
+  inline std::vector<geometry_msgs::msg::PointStamped> kdlToMsg(const std::vector<KDL::Vector>& in)
   {
-    return convertVector<geometry_msgs::PointStamped, KDL::Vector>(in,
-                                                                   [](const KDL::Vector& in)->geometry_msgs::PointStamped {
+    return convertVector<geometry_msgs::msg::PointStamped, KDL::Vector>(in,
+                                                                   [](const KDL::Vector& in)->geometry_msgs::msg::PointStamped {
                                                                      return kdlToMsg(in);
                                                                    });
   }
@@ -55,14 +54,14 @@ namespace aerial_robot_model {
   inline Eigen::Affine3d kdlToEigen(const KDL::Frame& in)
   {
     Eigen::Affine3d out;
-    tf::transformKDLToEigen(in, out);
+    out = tf2::transformToEigen(tf2::kdlToTransform(in));
     return out;
   }
 
   inline Eigen::Vector3d kdlToEigen(const KDL::Vector& in)
   {
     Eigen::Vector3d out;
-    tf::vectorKDLToEigen(in, out);
+    out = Eigen::Vector3d(in.x(), in.y(), in.z());
     return out;
   }
 

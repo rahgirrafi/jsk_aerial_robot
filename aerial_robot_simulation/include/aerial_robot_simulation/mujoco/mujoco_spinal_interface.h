@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <hardware_interface/internal/hardware_resource_manager.h>
 #include <hardware_interface/hardware_interface.h>
 #include <aerial_robot_estimation/state_estimation.h>

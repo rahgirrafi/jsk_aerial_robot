@@ -1,58 +1,76 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.8)
 project(aerial_robot_base)
 
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 17)
+endif()
 
-## Find catkin macros and libraries
-## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
-## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
+
+find_package(ament_cmake REQUIRED)
+find_package(ament_cmake_python REQUIRED)
+find_package(aerial_robot_control REQUIRED)
+find_package(aerial_robot_estimation REQUIRED)
+find_package(aerial_robot_model REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(rclpy REQUIRED)
+
+ament_python_install_package(${PROJECT_NAME})
+
+ament_export_dependencies(aerial_robot_control aerial_robot_estimation aerial_robot_model rclcpp)
+
+add_library(${PROJECT_NAME} src/aerial_robot_base.cpp)
+
+target_include_directories(${PROJECT_NAME} PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+)
+
+ament_target_dependencies(${PROJECT_NAME}
   aerial_robot_control
   aerial_robot_estimation
   aerial_robot_model
-  roscpp
-  rospy)
-
-catkin_python_setup()
-
-add_compile_options(-std=c++17)
-
-catkin_package(
-  INCLUDE_DIRS include
-  LIBRARIES ${PROJECT_NAME}
-  CATKIN_DEPENDS aerial_robot_control aerial_robot_estimation aerial_robot_model roscpp rospy
+  rclcpp
 )
 
-include_directories(
-  include
-  ${catkin_INCLUDE_DIRS}
+add_executable(${PROJECT_NAME}_node src/aerial_robot_base_node.cpp)
+
+target_include_directories(${PROJECT_NAME}_node PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
 )
 
-add_library (aerial_robot_base src/aerial_robot_base.cpp)
-target_link_libraries (aerial_robot_base ${catkin_LIBRARIES})
+target_link_libraries(${PROJECT_NAME}_node ${PROJECT_NAME})
 
-add_executable(aerial_robot_base_node src/aerial_robot_base_node.cpp)
-target_link_libraries (aerial_robot_base_node ${catkin_LIBRARIES} aerial_robot_base)
-
-# generate symbolic link for icon images
-add_custom_target(${PROJECT_NAME}_install_icons ALL COMMAND ${PROJECT_SOURCE_DIR}/bin/icon_install.sh)
+ament_target_dependencies(${PROJECT_NAME}_node
+  rclcpp
+)
 
 install(DIRECTORY include/${PROJECT_NAME}/
-  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
-
-install(TARGETS aerial_robot_base
-  DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  DESTINATION include/${PROJECT_NAME}
 )
 
-install(TARGETS aerial_robot_base_node
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+install(TARGETS ${PROJECT_NAME}
+  EXPORT ${PROJECT_NAME}Targets
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+)
+
+install(TARGETS ${PROJECT_NAME}_node
+  DESTINATION lib/${PROJECT_NAME}
 )
 
 install(DIRECTORY bin
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  DESTINATION lib/${PROJECT_NAME}
   USE_SOURCE_PERMISSIONS
 )
 
 install(DIRECTORY launch scripts
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+  DESTINATION share/${PROJECT_NAME}
   USE_SOURCE_PERMISSIONS
 )
+
+ament_package()

@@ -559,5 +559,5 @@ void HydrusLikeRobotModel::addCompThrustToJointTorqueJacobian()
 }
 
 /* plugin registration */
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>p>
 PLUGINLIB_EXPORT_CLASS(Dragon::HydrusLikeRobotModel, aerial_robot_model::RobotModel);

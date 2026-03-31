@@ -38,7 +38,7 @@
 #define SERVO_BRIDGE_H
 
 /* ros */
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
 /* ros msg */
 #include <std_msgs/UInt8.h>
@@ -54,7 +54,7 @@
 #include <spinal/UavInfo.h>
 #include <controller_manager_msgs/LoadController.h>
 #include <controller_manager_msgs/SwitchController.h>
-#include <urdf/model.h>
+#include <urdf_model/model.h>
 
 /* filter */
 #include <kalman_filter/lpf_filter.h>

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # Software License Agreement (BSD License)
@@ -32,12 +32,13 @@
 
 import math
 import numpy as np
-import rospy
+from aerial_robot_base import ros_compat as rospy
 
 import ros_numpy as ros_np
 import tf2_ros
-from tf.transformations import *
-import rosgraph
+from tf_transformations import *
+from rclpy.duration import Duration
+from rclpy.time import Time
 
 from aerial_robot_msgs.msg import FlightNav, PoseControlPid
 from geometry_msgs.msg import PoseStamped, Wrench, Vector3, Vector3Stamped, WrenchStamped, Quaternion, QuaternionStamped
@@ -76,13 +77,11 @@ class RobotInterface(object):
 
         self.robot_ns = robot_ns
         if not self.robot_ns:
-            master = rosgraph.Master('/rostopic')
-            try:
-                _, subs, _ = master.getSystemState()
-            except socket.error:
-                raise ROSTopicIOException("Unable to communicate with master!")
-
-            teleop_topics = [topic[0] for topic in subs if 'teleop_command/start' in topic[0]]
+            node = rospy.get_node()
+            teleop_topics = [
+                topic for topic, _ in node.get_topic_names_and_types()
+                if 'teleop_command/start' in topic
+            ]
             if len(teleop_topics) == 1:
                 self.robot_ns = teleop_topics[0].split('/teleop')[0]
 
@@ -156,20 +155,20 @@ class RobotInterface(object):
         return False
 
     def start(self, sleep = 1.0):
-        self.start_pub.publish()
+        self.start_pub.publish(Empty())
         rospy.sleep(sleep)
 
     def takeoff(self):
-        self.takeoff_pub.publish()
+        self.takeoff_pub.publish(Empty())
 
     def land(self):
-        self.land_pub.publish()
+        self.land_pub.publish(Empty())
 
     def forceLanding(self):
-        self.force_landing_pub.publish()
+        self.force_landing_pub.publish(Empty())
 
     def halt(self):
-        self.halt_pub.publish()
+        self.halt_pub.publish(Empty())
 
     def baseOdomCallback(self, msg):
         self.base_odom = msg
@@ -429,7 +428,7 @@ class RobotInterface(object):
 
 
     def getTF(self, frame_id, wait=0.5, parent_frame_id='world'):
-        trans = self.tf_buffer.lookup_transform(parent_frame_id, frame_id, rospy.Time.now(), rospy.Duration(wait))
+        trans = self.tf_buffer.lookup_transform(parent_frame_id, frame_id, Time(), timeout=Duration(seconds=wait))
         return trans
 
 

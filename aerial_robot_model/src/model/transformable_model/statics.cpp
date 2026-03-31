@@ -1,15 +1,15 @@
+
 #include <aerial_robot_model/model/transformable_aerial_robot_model.h>
+#include <rclcpp/rclcpp.hpp>
+#include <Eigen/Core>
 
 using namespace aerial_robot_model::transformable;
 
 void RobotModel::calcJointTorque(const bool update_jacobian)
 {
-  const auto& sigma = getRotorDirection();
-  const auto& joint_positions = getJointPositions();
   const auto& inertia_map = getInertiaMap();
   const int joint_num = getJointNum();
   const int rotor_num = getRotorNum();
-  const double m_f_rate = getMFRate();
   const auto gravity = getGravity();
   const auto& static_thrust =  getStaticThrust();
   const auto& thrust_wrench_units = getThrustWrenchUnits();
@@ -23,7 +23,7 @@ void RobotModel::calcJointTorque(const bool update_jacobian)
   int seg_index = 0;
   for(const auto& inertia : inertia_map)
     {
-      cog_coord_jacobians_.at(seg_index) = RobotModel::getJacobian(joint_positions, inertia.first, inertia.second.getCOG());
+      cog_coord_jacobians_.at(seg_index) = RobotModel::getJacobian(getJointPositions(), inertia.first, inertia.second.getCOG());
       joint_torque_ -= cog_coord_jacobians_.at(seg_index).rightCols(joint_num).transpose() * inertia.second.getMass() * (-gravity);
       seg_index ++;
     }
@@ -39,12 +39,8 @@ void RobotModel::calcLambdaJacobian()
 {
   // w.r.t root
   const auto& inertia_map = getInertiaMap();
-  const auto& rotor_direction = getRotorDirection();
-  const auto& joint_positions = getJointPositions();
   const int rotor_num = getRotorNum();
-  const int joint_num = getJointNum();
   const int ndof = thrust_coord_jacobians_.at(0).cols();
-  const double m_f_rate = getMFRate();
   const auto& q_mat = getThrustWrenchMatrix();
   const int wrench_dof = q_mat.rows(); // default: 6, under-actuated: 4
   Eigen::MatrixXd q_pseudo_inv = aerial_robot_model::pseudoinverse(q_mat);
@@ -59,7 +55,14 @@ void RobotModel::calcLambdaJacobian()
     wrench_gravity_jacobian.bottomRows(3) -= aerial_robot_model::skew(-inertia.second.getMass() * gravity_3d) * getSecondDerivativeRoot(inertia.first, inertia.second.getCOG());
   }
 
-  ROS_DEBUG_STREAM("wrench_gravity_jacobian w.r.t. root : \n" << wrench_gravity_jacobian);
+
+  {
+    std::ostringstream oss;
+    oss << std::setprecision(6);
+    Eigen::IOFormat fmt(Eigen::FullPrecision, 0, ", ", "\n", "[", "]");
+    oss << "wrench_gravity_jacobian w.r.t. root : \n" << wrench_gravity_jacobian.format(fmt);
+    RCLCPP_DEBUG_STREAM(rclcpp::get_logger("aerial_robot_model"), oss.str());
+  }
 
   if(wrench_dof == 6) // fully-actuated
     lambda_jacobian_ = -q_pseudo_inv * wrench_gravity_jacobian; // trans, rot
@@ -101,14 +104,18 @@ void RobotModel::calcLambdaJacobian()
     }
   lambda_jacobian_ += (Eigen::MatrixXd::Identity(rotor_num, rotor_num) - q_pseudo_inv * q_mat) * q_pseudo_inv_jacobian;
 
-  ROS_DEBUG_STREAM("lambda_jacobian: \n" << lambda_jacobian_);
+  {
+    std::ostringstream oss;
+    oss << std::setprecision(6);
+    Eigen::IOFormat fmt(Eigen::FullPrecision, 0, ", ", "\n", "[", "]");
+    oss << "lambda_jacobian: \n" << lambda_jacobian_.format(fmt);
+    RCLCPP_DEBUG_STREAM(rclcpp::get_logger("aerial_robot_model"), oss.str());
+  }
 }
 
 void RobotModel::calcJointTorqueJacobian()
 {
-  const auto& sigma = getRotorDirection();
   const auto& inertia_map = getInertiaMap();
-  const double m_f_rate = getMFRate();
   const int rotor_num = getRotorNum();
   const int joint_num = getJointNum();
   const int ndof = lambda_jacobian_.cols();

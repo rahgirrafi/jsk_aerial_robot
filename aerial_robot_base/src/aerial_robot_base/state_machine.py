@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # Software License Agreement (BSD License)
@@ -30,7 +30,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import rospy
+from aerial_robot_base import ros_compat as rospy
 import smach
 import smach_ros
 import functools
@@ -441,7 +441,7 @@ class TransformWithPose(BaseState):
                     self.robot.rotateCog(target_rot[0], target_rot[1])
 
                     if len(target_rot) == 3:
-                        self.robot.rotateyaw(target_rot[2], timeout = 0)
+                        self.robot.rotateYaw(target_rot[2], timeout = 0)
                     else:
                         # fill the yaw element for subsequent pose convergence check
                         curr_yaw = self.robot.getCogRPY()[2]

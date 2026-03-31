@@ -349,5 +349,5 @@ void DragonLQIGimbalController::rosParamInit()
 }
 
 /* plugin registration */
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>p>
 PLUGINLIB_EXPORT_CLASS(aerial_robot_control::DragonLQIGimbalController, aerial_robot_control::ControlBase);

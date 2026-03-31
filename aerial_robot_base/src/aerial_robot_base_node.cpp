@@ -1,14 +1,18 @@
 #include "aerial_robot_base/aerial_robot_base.h"
 
-int main (int argc, char **argv)
+int main(int argc, char** argv)
 {
-  ros::init (argc, argv, "aeria_robot_base");
-  ros::NodeHandle nh;
-  ros::NodeHandle nh_private("~");
-  AerialRobotBase*  aerialRobotBaseNode = new AerialRobotBase(nh, nh_private);
-  ros::waitForShutdown();
+  rclcpp::init(argc, argv);
 
-  delete aerialRobotBaseNode;
+  auto node = std::make_shared<rclcpp::Node>("aerial_robot_base");
+  auto aerial_robot_base = std::make_shared<AerialRobotBase>(node);
+  (void)aerial_robot_base;
+
+  rclcpp::executors::MultiThreadedExecutor executor(rclcpp::ExecutorOptions(), 4);
+  executor.add_node(node);
+  executor.spin();
+
+  rclcpp::shutdown();
   return 0;
 }
 

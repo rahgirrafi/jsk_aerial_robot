@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # Software License Agreement (BSD License)
@@ -33,13 +33,9 @@
 import sys
 import unittest
 
-import rospy
-import rostest
+from aerial_robot_base import ros_compat as rospy
 from aerial_robot_base.state_machine import *
 from std_msgs.msg import Empty
-
-
-PKG = 'rostest'
 
 # Template for simple demo
 class HoverMotion():
@@ -105,8 +101,10 @@ class HoveringTest(unittest.TestCase):
 if __name__ == '__main__':
     print("start check hovering")
     try:
-        rostest.run(PKG, 'hovering_check', HoveringTest, sys.argv)
+        unittest.main(argv=sys.argv)
     except KeyboardInterrupt:
         pass
+    finally:
+        rospy.shutdown()
 
     print("exiting")

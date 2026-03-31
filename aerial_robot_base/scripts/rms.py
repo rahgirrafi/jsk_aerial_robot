@@ -1,5 +1,5 @@
-#!/usr/bin/env python
-import rospy
+#!/usr/bin/env python3
+from aerial_robot_base import ros_compat as rospy
 
 from std_msgs.msg import Empty
 from std_msgs.msg import Int8

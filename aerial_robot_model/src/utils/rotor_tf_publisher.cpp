@@ -34,13 +34,14 @@
  *********************************************************************/
 
 /* ros */
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <urdf/model.h>
 #include <kdl/tree.hpp>
 #include <kdl_parser/kdl_parser.hpp>
-#include <tf/tf.h>
 #include <tf2_kdl/tf2_kdl.h>
-#include <tf2_ros/static_transform_broadcaster.h>
+#include <tf2_ros/static_transform_broadcaster.hpp>
+#include <geometry_msgs/msg/transform_stamped.hpp>
+#include <memory>
 
 using namespace std;
 
@@ -54,82 +55,91 @@ public:
   std::string root, tip;
 };
 
-class RotorTfPublisher {
+
+
+class RotorTfPublisher : public rclcpp::Node {
 public:
-  RotorTfPublisher(ros::NodeHandle nh, ros::NodeHandle nhp, const KDL::Tree& tree, const urdf::Model& model): nh_(nh), nhp_(nhp)
+  RotorTfPublisher(const KDL::Tree& tree)
+    : Node("rotor_tf_publisher")
   {
-    nhp_.param("rotor_joint_name", rotor_joint_name_, string("rotor"));
-    nhp_.param("tf_prefix", tf_prefix_, string(""));
+    this->declare_parameter<std::string>("rotor_joint_name", "rotor");
+    this->declare_parameter<std::string>("tf_prefix", "");
+    this->get_parameter("rotor_joint_name", rotor_joint_name_);
+    this->get_parameter("tf_prefix", tf_prefix_);
 
     addChildren(tree.getRootSegment());
-    timer_ = nhp_.createTimer(0.1, &RotorTfPublisher::callbackFixedJoint, this, true);
+    static_tf_broadcaster_ = std::make_shared<tf2_ros::StaticTransformBroadcaster>(shared_from_this());
+    // Immediately publish static transforms on startup
+    publishFixedJoints();
   }
-
-  ~RotorTfPublisher(){}
 
 private:
-  void callbackFixedJoint(const ros::TimerEvent& e)
+  void publishFixedJoints()
   {
-    std::vector<geometry_msgs::TransformStamped> tf_transforms;
-    geometry_msgs::TransformStamped tf_transform;
-
-    // loop over all fixed segments
-    for (map<string, SegmentPair>::const_iterator seg=segments_rotor_.begin(); seg != segments_rotor_.end(); seg++) {
-      geometry_msgs::TransformStamped tf_transform = tf2::kdlToTransform(seg->second.segment.pose(0));
-      tf_transform.header.stamp = ros::Time::now();
-      tf_transform.header.frame_id = tf::resolve(tf_prefix_, seg->second.root);
-      tf_transform.child_frame_id =  tf::resolve(tf_prefix_, seg->second.tip);
+    std::vector<geometry_msgs::msg::TransformStamped> tf_transforms;
+    for (auto seg = segments_rotor_.begin(); seg != segments_rotor_.end(); ++seg) {
+      geometry_msgs::msg::TransformStamped tf_transform = tf2::kdlToTransform(seg->second.segment.pose(0));
+      tf_transform.header.stamp = this->now();
+      tf_transform.header.frame_id = tf_prefix_ + seg->second.root;
+      tf_transform.child_frame_id = tf_prefix_ + seg->second.tip;
       tf_transforms.push_back(tf_transform);
     }
-    static_tf_broadcaster_.sendTransform(tf_transforms);
+    static_tf_broadcaster_->sendTransform(tf_transforms);
   }
 
-  ros::Timer timer_;
-  ros::NodeHandle nh_, nhp_;
-  string rotor_joint_name_;
-  string tf_prefix_;
-  tf2_ros::StaticTransformBroadcaster static_tf_broadcaster_;
+  std::string rotor_joint_name_;
+  std::string tf_prefix_;
+  std::shared_ptr<tf2_ros::StaticTransformBroadcaster> static_tf_broadcaster_;
   std::map<std::string, SegmentPair> segments_rotor_;
 
   void addChildren(const KDL::SegmentMap::const_iterator segment)
   {
     const std::string& root = GetTreeElementSegment(segment->second).getName();
-
     const std::vector<KDL::SegmentMap::const_iterator>& children = GetTreeElementChildren(segment->second);
     for (unsigned int i=0; i<children.size(); i++)
-      {
-        const KDL::Segment& child = GetTreeElementSegment(children[i]->second);
-        SegmentPair s(GetTreeElementSegment(children[i]->second), root, child.getName());
-        std::string::size_type pos = child.getJoint().getName().find(rotor_joint_name_);
-
-        if(pos != std::string::npos)
-            segments_rotor_.insert(make_pair(child.getJoint().getName(), s));
-
-        addChildren(children[i]);
-      }
+    {
+      const KDL::Segment& child = GetTreeElementSegment(children[i]->second);
+      SegmentPair s(GetTreeElementSegment(children[i]->second), root, child.getName());
+      std::string::size_type pos = child.getJoint().getName().find(rotor_joint_name_);
+      if(pos != std::string::npos)
+        segments_rotor_.insert(make_pair(child.getJoint().getName(), s));
+      addChildren(children[i]);
+    }
   }
-
 };
+
+
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "rotor_tf_publisher");
-  ros::NodeHandle nh;
-  ros::NodeHandle nhp("~");
+  rclcpp::init(argc, argv);
+  auto node = std::make_shared<rclcpp::Node>("rotor_tf_publisher_loader");
 
-  urdf::Model model;
-  if (!model.initParam("robot_description"))
-    return -1;
-
-  KDL::Tree tree;
-  if (!kdl_parser::treeFromUrdfModel(model, tree)) {
-    ROS_ERROR("Failed to extract kdl tree from xml robot description");
+  // Declare and get robot_description parameter
+  node->declare_parameter<std::string>("robot_description", "");
+  std::string urdf_string;
+  node->get_parameter("robot_description", urdf_string);
+  if (urdf_string.empty()) {
+    RCLCPP_ERROR(node->get_logger(), "robot_description parameter is empty");
     return -1;
   }
 
-  RotorTfPublisher rotor_tf_publisher(nh, nhp, tree, model);
-  ros::spin();
+  urdf::Model model;
+  if (!model.initString(urdf_string)) {
+    RCLCPP_ERROR(node->get_logger(), "Failed to parse URDF from robot_description parameter");
+    return -1;
+  }
 
+  KDL::Tree tree;
+  if (!kdl_parser::treeFromUrdfModel(model, tree)) {
+    RCLCPP_ERROR(node->get_logger(), "Failed to extract kdl tree from xml robot description");
+    return -1;
+  }
+
+  // Now create the publisher node, which will use shared_from_this()
+  auto pub_node = std::make_shared<RotorTfPublisher>(tree);
+  rclcpp::spin(pub_node);
+  rclcpp::shutdown();
   return 0;
 }
 

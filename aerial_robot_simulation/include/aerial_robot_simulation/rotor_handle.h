@@ -33,7 +33,7 @@
 #define HARDWARE_INTERFACE_ROTOR_HANDLE_H
 
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <urdf_model/joint.h>
 #include <tf/LinearMath/Vector3.h>
 #include <aerial_robot_simulation/noise_model.h>

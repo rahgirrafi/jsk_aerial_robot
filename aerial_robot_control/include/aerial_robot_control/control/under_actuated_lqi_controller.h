@@ -42,7 +42,7 @@
 #include <dynamic_reconfigure/server.h>
 #include <spinal/RollPitchYawTerms.h>
 #include <spinal/PMatrixPseudoInverseWithInertia.h>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <thread>
 
 namespace aerial_robot_control

@@ -370,5 +370,5 @@ void GimbalrotorController::setAttitudeGains()
 }  // namespace aerial_robot_control
 
 /* plugin registration */
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 PLUGINLIB_EXPORT_CLASS(aerial_robot_control::GimbalrotorController, aerial_robot_control::ControlBase);
